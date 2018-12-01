@@ -1,7 +1,10 @@
-let numeros = [3, 2, 11, 20, 8, 7];
-let resultado = [];
-numeros.map(item => {
-  item % 2 ? resultado.push(item * 2) : resultado.push(item);
-});
-
-console.log(resultado);
+const objetoCarro = {
+  modelo: 'civic',
+  ano: '2017',
+  cor: 'preto',
+  andar: () => console.log('carro andando'),
+};
+const prop = 'andar';
+objetoCarro[prop]();
+console.log(objetoCarro['ano']);
+console.log(objetoCarro.cor);

@@ -1,4 +1,5 @@
 class NegociacoesView extends View {
+  // chama o construtor da classe mae passando elementoDOM
   constructor(elementoDOM) {
     super(elementoDOM);
   }

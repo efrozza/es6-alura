@@ -3,7 +3,7 @@ class View {
     this._elementoDOM = elementoDOM;
   }
 
-  template() {
+  template(modelo) {
     throw new Error('O metodo deve ser implementado');
   }
 
