@@ -46,8 +46,6 @@ class NegociacaoController {
     this._listaNegociacoes.adiciona(this._criaNegociacao());
 
     this._mensagem.texto = 'Negociação adicionada com sucesso!';
-    {
-    }
     this._limpaFormulario();
   }
 
@@ -55,9 +53,32 @@ class NegociacaoController {
     // criamos uma instacia do servio que fara a chamada ajax para popular as negociacoes
 
     let negociacaoService = new NegociacaoService();
-    let promise = negociacaoService.obterNegociacoesDaSemana();
+    negociacaoService
+      .obterNegociacoesDaSemana()
+      .then(negociacoes => {
+        negociacoes.map(negociacao => {
+          this._listaNegociacoes.adiciona(negociacao);
+        });
+        this._mensagem.texto = 'Negociações da semana importadas com sucesso';
+      })
+      .catch(erro => {
+        this._mensagem.texto = erro;
+      });
 
-    promise
+    negociacaoService
+      .obterNegociacoesDaSemanaAnterior()
+      .then(negociacoes => {
+        negociacoes.map(negociacao => {
+          this._listaNegociacoes.adiciona(negociacao);
+        });
+        this._mensagem.texto = 'Negociações da semana importadas com sucesso';
+      })
+      .catch(erro => {
+        this._mensagem.texto = erro;
+      });
+
+    negociacaoService
+      .obterNegociacoesDaSemanaRetrasada()
       .then(negociacoes => {
         negociacoes.map(negociacao => {
           this._listaNegociacoes.adiciona(negociacao);
