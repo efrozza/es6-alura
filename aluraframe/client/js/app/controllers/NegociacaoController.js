@@ -6,6 +6,7 @@ class NegociacaoController {
     this._inputQuantidade = document.querySelector('#quantidade');
     this._inputValor = document.querySelector('#valor');
 
+    // cira uma atributo para a lista de negociaçoes
     this._listaNegociacoes = ProxyFactory.create(
       new ListaNegociacoes(),
       ['adiciona', 'esvazia'],
@@ -17,20 +18,26 @@ class NegociacaoController {
       document.querySelector('#negociacoesView'),
     );
 
+    // atualiza a view de negociações pois o proxy nao roda na primeira vez que o objeto é instanciado
+    // roda apenas nas atualizações (adiciona, apaga)
     this._negociacoesView.update(this._listaNegociacoes);
 
-    this._mensagem = new Mensagem();
+    // cria um proxy para a mensagem
+    this._mensagem = ProxyFactory.create(new Mensagem(), ['texto'], modelo =>
+      this._mensagemView.update(modelo),
+    );
+    // cria a view de mensagem
     this._mensagemView = new MensagemView(
       document.querySelector('#mensagemView'),
     );
+
+    // atualiza a view
     this._mensagemView.update(this._mensagem);
   }
 
   apaga() {
     this._listaNegociacoes.esvazia();
-
     this._mensagem.texto = 'Negociações apagadas com sucesso';
-    this._mensagemView.update(this._mensagem);
   }
 
   adiciona(event) {
@@ -39,40 +46,27 @@ class NegociacaoController {
     this._listaNegociacoes.adiciona(this._criaNegociacao());
 
     this._mensagem.texto = 'Negociação adicionada com sucesso!';
-    this._mensagemView.update(this._mensagem);
-
+    {
+    }
     this._limpaFormulario();
   }
 
   importarNegociacoes() {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', 'negociacoes/semana');
+    // criamos uma instacia do servio que fara a chamada ajax para popular as negociacoes
 
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState == 4) {
-        if (xhr.status == 200) {
-          // converte texto para um objeto JS
-          JSON.parse(xhr.responseText)
-            .map(
-              negociacaoServidor =>
-                new Negociacao(
-                  new Date(negociacaoServidor.data),
-                  negociacaoServidor.quantidade,
-                  negociacaoServidor.valor,
-                ),
-            ) // map gera um novo array de objetos do tipo Negociacao a partir do json recebido
-            .map(negociacao => this._listaNegociacoes.adiciona(negociacao));
-          this._mensagem.texto = 'Negociações importadas com sucesso';
-          this._mensagemView.update(this._mensagem);
-        } else {
-          console.log('Não foi possível carregar negociações');
-          console.log(xhr.responseText);
-          this._mensagem.texto = 'Não foi possível carregar negociações';
-          this._mensagemView.update(this._mensagem);
-        }
-      }
-    };
-    xhr.send();
+    let negociacaoService = new NegociacaoService();
+    let promise = negociacaoService.obterNegociacoesDaSemana();
+
+    promise
+      .then(negociacoes => {
+        negociacoes.map(negociacao => {
+          this._listaNegociacoes.adiciona(negociacao);
+        });
+        this._mensagem.texto = 'Negociações da semana importadas com sucesso';
+      })
+      .catch(erro => {
+        this._mensagem.texto = erro;
+      });
   }
 
   // cria
