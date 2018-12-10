@@ -53,36 +53,19 @@ class NegociacaoController {
     // criamos uma instacia do servio que fara a chamada ajax para popular as negociacoes
 
     let negociacaoService = new NegociacaoService();
-    negociacaoService
-      .obterNegociacoesDaSemana()
-      .then(negociacoes => {
-        negociacoes.map(negociacao => {
-          this._listaNegociacoes.adiciona(negociacao);
-        });
-        this._mensagem.texto = 'Negociações da semana importadas com sucesso';
-      })
-      .catch(erro => {
-        this._mensagem.texto = erro;
-      });
 
-    negociacaoService
-      .obterNegociacoesDaSemanaAnterior()
+    Promise.all([
+      negociacaoService.obterNegociacoesDaSemana(),
+      negociacaoService.obterNegociacoesDaSemanaAnterior(),
+      negociacaoService.obterNegociacoesDaSemanaRetrasada(),
+    ])
       .then(negociacoes => {
-        negociacoes.map(negociacao => {
-          this._listaNegociacoes.adiciona(negociacao);
-        });
-        this._mensagem.texto = 'Negociações da semana importadas com sucesso';
-      })
-      .catch(erro => {
-        this._mensagem.texto = erro;
-      });
-
-    negociacaoService
-      .obterNegociacoesDaSemanaRetrasada()
-      .then(negociacoes => {
-        negociacoes.map(negociacao => {
-          this._listaNegociacoes.adiciona(negociacao);
-        });
+        console.log(negociacoes);
+        negociacoes
+          .reduce((arrayAchatado, array) => arrayAchatado.concat(array), [])
+          .map(negociacao => {
+            this._listaNegociacoes.adiciona(negociacao);
+          });
         this._mensagem.texto = 'Negociações da semana importadas com sucesso';
       })
       .catch(erro => {
